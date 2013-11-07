@@ -17,4 +17,8 @@ class User < ActiveRecord::Base
 
   has_many :answer_choices, through: :responses, source: :answer_choice
 
+  def my_polls
+    self.authored_polls.joins({questions: :answer_choices}).uniq
+  end
+
 end

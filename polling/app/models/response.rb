@@ -1,6 +1,7 @@
 class Response < ActiveRecord::Base
   validates :answer_choice_id, :respondent_id, presence: true
-  validate :respondent_has_not_already_answered_question
+  validate :respondent_has_not_already_answered_question,
+    :poll_not_authored_by_respondent
 
   belongs_to(
     :answer_choice,
@@ -15,6 +16,12 @@ class Response < ActiveRecord::Base
     foreign_key: :respondent_id,
     primary_key: :id
   )
+
+  # not fully implemented
+  def poll_author
+    #Response.select("responses.*, polls.author_id as author_id").joins(answer_choice: [{question: [:poll]}]).where(id: 1)
+    Response.select("responses.*, polls.* AS polls").joins(answer_choice: {question: :poll}).where(polls.author_id = respondent_id)
+  end
 
   private
   def respondent_has_not_already_answered_question
@@ -40,6 +47,13 @@ class Response < ActiveRecord::Base
     WHERE respondent_id = ?" , answer_choice_id, respondent_id])
   end
 
+  # not fully implemented
+  def poll_not_authored_by_respondent
+    respondent.my_polls
+    if poll_author == respondent_id
+      errors[:response] << "Respondent is author of poll"
+    end
+  end
 end
 
 
