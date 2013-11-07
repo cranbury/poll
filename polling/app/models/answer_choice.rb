@@ -1,5 +1,5 @@
 class AnswerChoice < ActiveRecord::Base
-  validates :text, presence: true
+  validates :text, :question_id, presence: true
 
   belongs_to(
     :question,
